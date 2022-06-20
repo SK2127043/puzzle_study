@@ -59,10 +59,13 @@ public class LogicalInput
     // Update is called once per frame
     public void Update(Key inputDev)
     {
+
         inputTrg = (inputDev ^ inputRaw) & inputDev;
         inputRel = (inputDev ^ inputRaw) & inputRaw;
 
+
         inputRaw = inputDev;
+
 
         inputRep = 0;
         for (int i = 0; i < (int)Key.MAX; i++)
