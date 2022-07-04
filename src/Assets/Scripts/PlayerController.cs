@@ -109,8 +109,10 @@ public class PlayerController : MonoBehaviour
 
     private bool Translate(bool is_right)
     {
+
         Vector2Int pos = _position + (is_right ? Vector2Int.right : Vector2Int.left);
         if (!CanMove(pos, _rotate)) return false;
+
 
         SetTransition(pos, _rotate, TRANS_TIME);
 
@@ -237,8 +239,8 @@ public class PlayerController : MonoBehaviour
 
         Vector3 dy = Vector3.up * (float)_fallCount / (float)FALL_COUNT_UNIT;
         float anim_rate = _animationController.GetNormalized();
-        _puyoControllers[0].SetPos(Interpolate(_position, RotState.Invalid, _last_position, RotState.Invalid, anim_rate));
-        _puyoControllers[1].SetPos(Interpolate(_position, _rotate, _last_position, _last_rotate, anim_rate));
+        _puyoControllers[0].SetPos(dy + Interpolate(_position, RotState.Invalid, _last_position, RotState.Invalid, anim_rate));
+        _puyoControllers[1].SetPos(dy + Interpolate(_position, _rotate, _last_position, _last_rotate, anim_rate));
     }
 
     static Vector3 Interpolate(Vector2Int pos, RotState rot, Vector2Int pos_last, RotState rot_last, float rate)

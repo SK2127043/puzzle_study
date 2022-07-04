@@ -201,7 +201,7 @@ public class BoardController : MonoBehaviour
         _eraseFrames++;
 
 
-        float t = _eraseFrames + Time.deltaTime;
+        float t = _eraseFrames * Time.deltaTime;
         t = 1.0f - 10.0f * ((t - 0.1f) * (t - 0.1f) - 0.1f * 0.1f);
 
 
