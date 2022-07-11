@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
     int _fallCount = 0;
     int _groundFrame = GROUND_FRAMES;
 
+    uint _additiveScore = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
         _puyoControllers[0].SetPos(new Vector3((float)_position.x, (float)_position.y, 0.0f));
         Vector2Int posChild = CalcChildPuyoPos(_position, _rotate);
-        _puyoControllers[1].SetPos(new Vector3((float)posChild.x, (float)posChild.y,  0.0f));
+        _puyoControllers[1].SetPos(new Vector3((float)posChild.x, (float)posChild.y, 0.0f));
     }
     public void SetLogicalInput(LogicalInput reference)
     {
@@ -83,7 +85,7 @@ public class PlayerController : MonoBehaviour
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
     };
 
-    private static Vector2Int CalcChildPuyoPos (Vector2Int pos, RotState rot)
+    private static Vector2Int CalcChildPuyoPos(Vector2Int pos, RotState rot)
     {
         return pos + rotate_tbl[(int)rot];
     }
@@ -149,7 +151,7 @@ public class PlayerController : MonoBehaviour
         if (!CanMove(pos, rot)) return false;
 
         SetTransition(pos, rot, ROT_TIME);
-        
+
         return true;
     }
 
@@ -173,7 +175,7 @@ public class PlayerController : MonoBehaviour
         do
         {
             pos += Vector2Int.down;
-        } while(CanMove(pos, _rotate));
+        } while (CanMove(pos, _rotate));
         pos -= Vector2Int.down;
 
         _position = pos;
@@ -184,12 +186,17 @@ public class PlayerController : MonoBehaviour
     bool Fall(bool is_fast)
     {
         _fallCount -= is_fast ? FALL_COUNT_FAST_SPD : FALL_COUNT_SPD;
+
+
         while (_fallCount < 0)
         {
             if (!CanMove(_position + Vector2Int.down, _rotate))
             {
+
                 _fallCount = 0;
                 if (0 < --_groundFrame) return true;
+
+
                 Settle();
                 return false;
             }
@@ -198,6 +205,8 @@ public class PlayerController : MonoBehaviour
             _last_position += Vector2Int.down;
             _fallCount += FALL_COUNT_UNIT;
         }
+
+        if (is_fast) _additiveScore++;
 
         return true;
     }
@@ -261,5 +270,13 @@ public class PlayerController : MonoBehaviour
         theta = theta0 + rate * theta;
 
         return p + new Vector3(Mathf.Sin(theta), Mathf.Cos(theta), 0.0f);
+    }
+
+    public uint popScore()
+    {
+        uint score = _additiveScore;
+        _additiveScore = 0;
+
+        return score;
     }
 }

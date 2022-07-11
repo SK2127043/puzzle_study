@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 interface IState
 {
@@ -22,9 +23,11 @@ interface IState
 }
 
 
+
 [RequireComponent (typeof(BoardController))]
 public class PlayDirector : MonoBehaviour
 {
+    uint _additiveScore = 0;
     [SerializeField] GameObject player = default!;
     PlayerController _playerController = null;
     LogicalInput _logicalInput = new();
@@ -32,6 +35,10 @@ public class PlayDirector : MonoBehaviour
 
     NextQueue _nextQueue = new();
     [SerializeField] PuyoPair[] nextPuyoPairs = { default!, default! };
+
+    [SerializeField] TextMeshProUGUI textScore = default!;
+    uint _score = 0;
+    int _chainCount = -1;
 
     IState.E_State _current_state = IState.E_State.Falling;
     static readonly IState[] states = new IState[(int)IState.E_State.MAX]{
@@ -130,7 +137,12 @@ public class PlayDirector : MonoBehaviour
     {
         public IState.E_State Initialize(PlayDirector parent)
         {
-            return parent. _boardController.CheckErase() ? IState.E_State.Unchanged : IState.E_State.Control;
+            if (parent. _boardController.CheckErase(parent._chainCount++))
+            {
+                return IState.E_State.Unchanged;
+            }
+            parent._chainCount = 0;
+            return IState.E_State.Control;
         }
         public IState.E_State Update(PlayDirector parent)
         {
@@ -170,7 +182,20 @@ public class PlayDirector : MonoBehaviour
         UpdateInput();
 
         UpdateState();
+
+        AddScore(_playerController.popScore());
+        AddScore(_boardController.popScore());
     }
 
     bool Spawn(Vector2Int next) => _playerController.Spawn((PuyoType)next[0], (PuyoType)next[1]);
+
+    void SetScore(uint score)
+    {
+        _score = score;
+        textScore.text = _score.ToString();
+    }
+    void AddScore(uint score)
+    {
+        if (0 < score) SetScore(_score + score);
+    }
 }
